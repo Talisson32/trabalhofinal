@@ -80,13 +80,13 @@
         }
 
         document.getElementById('on').onclick = async () => {
-            await fetch(API_URL + "&action=on");
+            await fetch(API_URL + "?action=on");
             await new Promise(resolve => setTimeout(resolve, 500));
             atualizarStatus();
         };
 
         document.getElementById('off').onclick = async () => {
-            await fetch(API_URL + "&action=off");
+            await fetch(API_URL + "?action=off");
             await new Promise(resolve => setTimeout(resolve, 500));
             atualizarStatus();
         };
