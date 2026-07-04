@@ -2,89 +2,51 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle do LED</title>
+  <title>LED Control</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 100px;
-      background: #f0f0f0;
-    }
-    h1 { color: #333; }
-    button {
-      font-size: 18px;
-      padding: 15px 40px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    #on {
-      background: #2ecc71;
-      color: white;
-    }
-    #on:hover { background: #27ae60; }
-    
-    #off {
-      background: #e74c3c;
-      color: white;
-    }
-    #off:hover { background: #c0392b; }
-    
-    #status {
-      font-size: 20px;
-      margin-top: 30px;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      display: inline-block;
-      min-width: 200px;
-    }
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    button { padding: 20px 40px; font-size: 16px; margin: 10px; cursor: pointer; }
+    #on { background: green; color: white; }
+    #off { background: red; color: white; }
+    #status { font-size: 18px; margin-top: 30px; }
   </style>
 </head>
 <body>
-  <h1>⚡ Controle do LED 3</h1>
-  <button id="on">Ligar</button>
-  <button id="off">Desligar</button>
-  <div id="status">Estado: carregando...</div>
+  <h1>Controle LED</h1>
+  <button id="on">LIGAR</button>
+  <button id="off">DESLIGAR</button>
+  <p id="status">Estado: carregando...</p>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzBsdqi9Qn6E8x9cZ-vWtylcfitKJE2wGwiJTCR7yYVHRlJHFcKvjP-EPiXXCjcrawd/exec";
-
-    function atualizarStatus() {
-      const script = document.createElement('script');
-      script.src = API_URL + '?callback=processResponse';
-      document.head.appendChild(script);
+    const API = "https://script.google.com/macros/s/AKfycbzTwpM2tjfMPTgX-BSORmJDAHVCzexulpintU7xKx7D7YY5XtogYi1y-2RTc0bHyka5/exec";
+    
+    function mostrarStatus(data) {
+      const texto = data.led ? "🟢 LIGADO" : "🔴 DESLIGADO";
+      document.getElementById('status').innerText = "Estado: " + texto;
     }
 
-    window.processResponse = function(data) {
-      document.getElementById('status').innerText = 
-        "Estado: " + (data.led ? "🟢 Ligado" : "🔴 Desligado");
+    function ler() {
+      const s = document.createElement('script');
+      s.src = API + "?callback=mostrarStatus";
+      document.body.appendChild(s);
+    }
+
+    document.getElementById('on').onclick = function() {
+      const s = document.createElement('script');
+      s.src = API + "?action=on&callback=mostrarStatus";
+      document.body.appendChild(s);
+      setTimeout(ler, 500);
     };
 
-    document.getElementById('on').onclick = () => {
-      const script = document.createElement('script');
-      script.src = API_URL + '?action=on&callback=processResponse';
-      script.onload = () => {
-        setTimeout(atualizarStatus, 500);
-      };
-      document.head.appendChild(script);
+    document.getElementById('off').onclick = function() {
+      const s = document.createElement('script');
+      s.src = API + "?action=off&callback=mostrarStatus";
+      document.body.appendChild(s);
+      setTimeout(ler, 500);
     };
 
-    document.getElementById('off').onclick = () => {
-      const script = document.createElement('script');
-      script.src = API_URL + '?action=off&callback=processResponse';
-      script.onload = () => {
-        setTimeout(atualizarStatus, 500);
-      };
-      document.head.appendChild(script);
-    };
-
-    // Atualiza o status a cada 3 segundos
-    atualizarStatus();
-    setInterval(atualizarStatus, 3000);
+    ler();
+    setInterval(ler, 3000);
   </script>
 </body>
 </html>
