@@ -1,1 +1,100 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwOSSJTq8GrHc9Nlj7sAgVc65253er7mgMFqVSYzIM-js5aqnEHpINr402GPfDC24eU/exec";
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle do LED</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+            background: #f0f0f0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 15px 40px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #on {
+            background: #2ecc71;
+            color: white;
+        }
+
+        #on:hover {
+            background: #27ae60;
+        }
+
+        #off {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #off:hover {
+            background: #c0392b;
+        }
+
+        #status {
+            font-size: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>⚡ Controle do LED</h1>
+    <button id="on">Ligar</button>
+    <button id="off">Desligar</button>
+    <div id="status">Estado: carregando...</div>
+
+    <script>
+        // COLE AQUI A URL DO APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbwOSSJTq8GrHc9Nlj7sAgVc65253er7mgMFqVSYzIM-js5aqnEHpINr402GPfDC24eU/exec";
+
+        async function atualizarStatus() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                document.getElementById('status').innerText =
+                    "Estado: " + (data.led ? "🟢 Ligado" : "🔴 Desligado");
+            } catch (error) {
+                document.getElementById('status').innerText = "Erro ao conectar";
+                console.error(error);
+            }
+        }
+
+        document.getElementById('on').onclick = async () => {
+            await fetch(API_URL + "&action=on");
+            await new Promise(resolve => setTimeout(resolve, 500));
+            atualizarStatus();
+        };
+
+        document.getElementById('off').onclick = async () => {
+            await fetch(API_URL + "&action=off");
+            await new Promise(resolve => setTimeout(resolve, 500));
+            atualizarStatus();
+        };
+
+        // Atualiza o status a cada 2 segundos
+        atualizarStatus();
+        setInterval(atualizarStatus, 2000);
+    </script>
+</body>
+
+</html>
