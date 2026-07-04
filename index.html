@@ -45,41 +45,66 @@
   </style>
 </head>
 <body>
-  <h1>⚡ Controle do LED 8</h1>
+  <h1>⚡ Controle do LED</h1>
   <button id="on">Ligar</button>
   <button id="off">Desligar</button>
   <div id="status">Estado: carregando...</div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
-
   <script>
-    // Configuração do Firebase
-    const firebaseConfig = {
-      databaseURL: "https://trabalho-6549f-default-rtdb.firebaseio.com"
-    };
+    // URL do Firebase (com .json no final)
+    const firebaseURL = "https://trabalho-6549f-default-rtdb.firebaseio.com/led.json";
 
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const ledRef = database.ref('led');
+    // Função para ler o estado
+    function lerEstado() {
+      fetch(firebaseURL)
+        .then(response => response.json())
+        .then(data => {
+          console.log("Valor do Firebase:", data);
+          const texto = data ? "🟢 Ligado" : "🔴 Desligado";
+          document.getElementById('status').innerText = "Estado: " + texto;
+        })
+        .catch(error => {
+          console.error("Erro ao ler:", error);
+          document.getElementById('status').innerText = "Estado: Erro ao conectar";
+        });
+    }
 
-    // Atualizar status em tempo real
-    ledRef.on('value', (snapshot) => {
-      const estado = snapshot.val();
-      const texto = estado ? "🟢 Ligado" : "🔴 Desligado";
-      document.getElementById('status').innerText = "Estado: " + texto;
-    });
+    // Função para escrever no Firebase
+    function escreverFirebase(valor) {
+      fetch(firebaseURL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(valor)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Escrito no Firebase:", data);
+        lerEstado(); // atualiza o estado na tela
+      })
+      .catch(error => {
+        console.error("Erro ao escrever:", error);
+      });
+    }
 
     // Botão Ligar
     document.getElementById('on').onclick = () => {
-      ledRef.set(true);
+      console.log("Clicou em LIGAR");
+      escreverFirebase(true);
     };
 
     // Botão Desligar
     document.getElementById('off').onclick = () => {
-      ledRef.set(false);
+      console.log("Clicou em DESLIGAR");
+      escreverFirebase(false);
     };
+
+    // Lê o estado inicial
+    lerEstado();
+
+    // Atualiza a cada 2 segundos
+    setInterval(lerEstado, 2000);
   </script>
 </body>
 </html>
